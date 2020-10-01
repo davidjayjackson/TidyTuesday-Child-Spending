@@ -1,0 +1,58 @@
+---
+title: "Dollars Spend by State on Children."
+author: "David Jackson"
+date: "9/15/2020"
+output: 
+  html_document: 
+    fig_width: 9
+    fig_height: 7
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(scales)
+```
+
+## US Spending on Kids by State
+```{r}
+kids <- read.csv('../DATA/kids.csv')
+head(kids)
+```
+```{r}
+state_sum_ed <- aggregate(raw~state,data=kids,FUN=sum)
+state_mean_ed <- aggregate(raw~state,data=kids,FUN=mean)
+```
+
+## Plot Raw spending by State and Year
+
+```{r}
+ggplot(state_sum_ed) + geom_col(aes(x=reorder(state,raw),y=raw)) + coord_flip() +
+  scale_y_continuous(labels = scales::comma) + labs(title="Total Spent on Child service by State and Year") 
+
+ggplot(state_mean_ed) + geom_col(aes(x=state,y=raw)) + coord_flip() +
+  scale_y_continuous(labels = scales::comma) + labs(title="Average Spent on Child service by State and Year")
+```
+
+```{r}
+state_sum <- aggregate(raw~state+year,data=kids,FUN=sum)
+state_mean <- aggregate(raw~state+year,data=kids,FUN=mean)
+```
+
+```{r}
+total_var <- aggregate(raw~variable+state+year,data=kids,FUN=sum)
+```
+
+### Total by Variable and Year
+
+```{r}
+ggplot(total_var) + geom_col(aes(x=variable,y=raw)) + coord_flip() +
+  facet_wrap(~year)
+```
+```{r}
+ggplot(total_var) + geom_col(aes(x=year,y=raw)) + coord_flip() +
+  facet_wrap(~variable) + scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x=element_text(angle =- 45, vjust = 0.5))
+```
+
+
